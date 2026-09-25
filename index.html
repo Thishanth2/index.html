@@ -9,6 +9,9 @@
   </style>
 </head>
 <body>
+  <audio id="birthdaySong" preload="auto" loop>
+    <source src="nastelbom-happy-birthday-495860.mp3" type="audio/mpeg">
+  </audio>
   <main class="card">
     <section id="screen1" class="screen">
       <div class="emoji">🎁</div>
@@ -17,67 +20,43 @@
       <div class="bar"><span></span></div>
       <button id="openButton" class="button" type="button">Open your birthday card ✨</button>
     </section>
-
     <section id="screen2" class="screen hidden">
-      <div class="emoji">🎉</div>
-      <h1 class="title">Birthday Alert!</h1>
+      <div class="emoji">🎉</div><h1 class="title">Birthday Alert!</h1>
       <p class="text">Special mission: celebrate the coolest person ever!</p>
       <button id="celebrateButton" class="button" type="button">Start the Celebration ✨</button>
     </section>
-
     <section id="screen3" class="screen hidden">
-      <div class="emoji">⏳</div>
-      <h1 class="title" id="countdown">3</h1>
+      <div class="emoji">⏳</div><h1 class="title" id="countdown">3</h1>
       <p class="text">Get ready for a wave of love, laughter, and cake! 🍰</p>
     </section>
-
     <section id="screen4" class="screen hidden">
-      <div class="emoji">🎂</div>
-      <h1 class="title">Happy Birthday, Dada!</h1>
+      <div class="emoji">🎂</div><h1 class="title">Happy Birthday, Dada!</h1>
       <p class="text">Your smile is the greatest gift, and your presence is the sweetest blessing. May your year be filled with happiness, health, beauty, and unforgettable memories.</p>
       <img class="memory" src="WhatsApp%20Image%202026-09-25%20at%2022.47.21.jpeg" alt="Birthday memory">
       <p class="text">May every dream you wish for come true, every smile stay on your face, and every day bring you more love than the one before. We love you so much! 💖</p>
       <button id="againButton" class="button" type="button">Celebrate Again 🎊</button>
     </section>
   </main>
-
   <script>
-    (function () {
+    (function(){
       'use strict';
-      var ids = ['screen1','screen2','screen3','screen4'];
-      function show(name) {
-        ids.forEach(function (id) { document.getElementById(id).classList.toggle('hidden', id !== name); });
+      var ids=['screen1','screen2','screen3','screen4'];
+      var song=document.getElementById('birthdaySong');
+      function show(name){ids.forEach(function(id){document.getElementById(id).classList.toggle('hidden',id!==name);});}
+      function playBirthdaySong(){
+        song.currentTime=0;
+        var attempt=song.play();
+        if(attempt&&attempt.catch){attempt.catch(function(){
+          // Some browsers require one more user tap before allowing sound.
+          document.addEventListener('click',function resume(){song.play().catch(function(){});document.removeEventListener('click',resume);},{once:true});
+        });}
       }
-      function confetti() {
-        var symbols = ['🎈','🎉','🎂','🎁','✨','🥳'];
-        for (var i = 0; i < 18; i++) {
-          (function (delay) {
-            setTimeout(function () {
-              var item = document.createElement('span');
-              item.className = 'balloon';
-              item.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-              item.style.left = (Math.random() * 94) + 'vw';
-              item.style.animationDuration = (5 + Math.random() * 4) + 's';
-              document.body.appendChild(item);
-              setTimeout(function () { item.remove(); }, 9500);
-            }, delay);
-          })(i * 90);
-        }
-      }
-      function startCountdown() {
-        show('screen3');
-        var value = 3;
-        var output = document.getElementById('countdown');
-        output.textContent = value;
-        var timer = setInterval(function () {
-          value -= 1;
-          if (value > 0) output.textContent = value;
-          else { clearInterval(timer); show('screen4'); confetti(); }
-        }, 850);
-      }
-      document.getElementById('openButton').addEventListener('click', function () { show('screen2'); confetti(); });
-      document.getElementById('celebrateButton').addEventListener('click', startCountdown);
-      document.getElementById('againButton').addEventListener('click', confetti);
+      function confetti(){var symbols=['🎈','🎉','🎂','🎁','✨','🥳'];for(var i=0;i<18;i++){(function(delay){setTimeout(function(){var item=document.createElement('span');item.className='balloon';item.textContent=symbols[Math.floor(Math.random()*symbols.length)];item.style.left=Math.random()*94+'vw';item.style.animationDuration=5+Math.random()*4+'s';document.body.appendChild(item);setTimeout(function(){item.remove();},9500);},delay);})(i*90);}}
+      function openCard(){show('screen2');confetti();}
+      function startCountdown(){show('screen3');var value=3,output=document.getElementById('countdown');output.textContent=value;var timer=setInterval(function(){value-=1;if(value>0)output.textContent=value;else{clearInterval(timer);show('screen4');playBirthdaySong();confetti();}},850);}
+      document.getElementById('openButton').addEventListener('click',openCard);
+      document.getElementById('celebrateButton').addEventListener('click',startCountdown);
+      document.getElementById('againButton').addEventListener('click',function(){playBirthdaySong();confetti();});
     }());
   </script>
 </body>
