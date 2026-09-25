@@ -8,49 +8,309 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Fredoka', 'Inter', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%); min-height: 100vh; color: #ffffff; overflow-x: hidden; user-select: none; }
-        @keyframes scan { 0% { top: 0%; opacity: .8; } 50% { top: 90%; opacity: 1; } 100% { top: 0%; opacity: .8; } }
-        .scanner-beam { position: absolute; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #ec4899, transparent); box-shadow: 0 0 15px #ec4899, 0 0 30px #ec4899; animation: scan 2s infinite ease-in-out; }
-        @keyframes floatUp { 0% { transform: translateY(100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(-120vh) rotate(360deg); opacity: .8; } }
-        .balloon { position: fixed; bottom: -100px; z-index: 10; pointer-events: none; animation: floatUp 8s linear infinite; }
-        .glass-card { background: rgba(255,255,255,.07); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.15); box-shadow: 0 8px 32px rgba(0,0,0,.37); }
-        @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 15px rgba(236,72,153,.5); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(236,72,153,.9); transform: scale(1.03); } }
-        .pulse-glow { animation: pulseGlow 2s infinite; }
-        @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
-        .shake-element { animation: shake .5s ease-in-out; }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: rgba(15,23,42,.6); } ::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 4px; }
+        body {
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: .8; }
+            50% { top: 90%; opacity: 1; }
+            100% { top: 0%; opacity: .8; }
+        }
+
+        .scanner-beam {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ec4899, transparent);
+            box-shadow: 0 0 15px #ec4899, 0 0 30px #ec4899;
+            animation: scan 2.5s ease-in-out infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: .8; }
+        }
+
+        .balloon {
+            position: fixed;
+            bottom: -100px;
+            z-index: 10;
+            pointer-events: none;
+            animation: floatUp 8s linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255,255,255,.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,.2);
+        }
+
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 15px rgba(236,72,153,.5); transform: scale(1); }
+            50% { box-shadow: 0 0 30px rgba(236,72,153,.9); transform: scale(1.03); }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%,60% { transform: translateX(-8px); }
+            40%,80% { transform: translateX(8px); }
+        }
+
+        .shake-element {
+            animation: shake .5s ease-in-out;
+        }
+
+        .photo-card {
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(15,23,42,.6);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ec4899;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body class="flex items-center justify-center p-4 min-h-screen relative overflow-y-auto">
     <div class="fixed top-10 left-10 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
     <div class="fixed bottom-10 right-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
     <div id="balloon-container"></div>
+
     <main class="w-full max-w-xl my-auto z-20">
         <div id="screen1" class="glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden transition-all duration-500 transform scale-100">
-            <div class="scanner-beam"></div><div class="relative z-10">
-                <div class="inline-block p-4 rounded-full bg-pink-500/10 mb-4 border border-pink-500/30 animate-pulse"><span class="text-5xl">🔍</span></div>
+            <div class="scanner-beam"></div>
+            <div class="relative z-10">
+                <div class="inline-block p-4 rounded-full bg-pink-500/10 mb-4 border border-pink-500/30 animate-pulse">
+                    <span class="text-5xl">🔍</span>
+                </div>
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-wide text-pink-400 mb-2">SCANNING USER...</h1>
                 <p class="text-slate-300 text-sm mb-6">Analyzing biometrics & birthday credentials</p>
-                <div class="w-full bg-slate-800/80 rounded-full h-3 mb-6 overflow-hidden border border-slate-700"><div id="scan-progress" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full w-0 transition-all duration-1000 ease-out"></div></div>
-                <div id="detection-box" class="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-4 mb-6 text-left space-y-2 text-sm sm:text-base hidden opacity-0 transition-all duration-500"><div class="flex items-center justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Target Detected:</span><span class="font-bold text-pink-400 text-lg">N. Partheeban (Dada)</span></div><div class="flex items-center justify-between border-b border-slate-800 pb-2"><span class="text-slate-400">Age:</span><span class="font-semibold text-yellow-400">Classified 🤫 (Level 34)</span></div><div class="flex items-center justify-between"><span class="text-slate-400">Status:</span><span class="font-semibold text-red-400">Getting Older... ⚠️</span></div></div>
-                <button id="btn-screen1" onclick="goToScreen2()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg">🎁 CLICK TO SEE YOUR BIRTHDAY SURPRISE</button>
+
+                <div class="w-full bg-slate-800/80 rounded-full h-3 mb-6 overflow-hidden border border-slate-700">
+                    <div id="scan-progress" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                </div>
+
+                <div id="detection-box" class="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-4 mb-6 text-left space-y-2 text-sm sm:text-base hidden opacity-0 transition-all duration-500">
+                    <div class="flex items-center justify-between text-pink-300"><span>Birthday status</span><span class="font-bold">✅ Verified</span></div>
+                    <div class="flex items-center justify-between text-purple-300"><span>Presence</span><span class="font-bold">✅ Detected</span></div>
+                    <div class="flex items-center justify-between text-amber-300"><span>Joy level</span><span class="font-bold">🔥 MAXIMUM</span></div>
+                </div>
+
+                <button id="btn-screen1" onclick="goToScreen2()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg shadow-lg shadow-pink-500/20 transition-transform hover:scale-[1.02]">
+                    🎁 Open Birthday Surprise
+                </button>
             </div>
         </div>
-        <div id="screen2" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-500 border-2 border-amber-500/50"><div class="text-6xl mb-4 animate-bounce">⚠️</div><div class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs font-bold tracking-wider mb-3 uppercase border border-amber-500/30">Critical Alert Detected</div><h2 class="text-2xl sm:text-3xl font-extrabold text-amber-400 mb-4">SYSTEM WARNING!</h2><div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-amber-500/30 text-left text-slate-200 text-sm sm:text-base leading-relaxed mb-6">Our ultra-advanced AI system has discovered that you are officially <span class="text-pink-400 font-bold">1 year older today</span>!<br><br><span class="text-red-400 font-semibold">⚠️ WARNING:</span> There is currently no known cure for getting older. Do you wish to accept this reality and proceed?</div><div class="relative h-28 flex items-center justify-center gap-4"><button onclick="startCountdown()" class="px-8 py-3.5 rounded-xl bg-green-500 text-white font-bold text-lg">YES 👍</button><button id="btn-no" class="px-8 py-3.5 rounded-xl bg-red-500 text-white font-bold text-lg shadow-lg absolute transition-all duration-200 z-50">NO 🏃‍♂️</button></div><p id="no-taunt" class="text-xs text-pink-400 font-semibold h-4 mt-2 opacity-0 transition-opacity">Nice try Dada! You can't escape age! 😏</p></div>
-        <div id="screen3" class="glass-card rounded-3xl p-8 sm:p-12 text-center hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center min-h-[350px]"><p class="text-slate-400 text-lg mb-4 font-semibold uppercase tracking-widest">Hold on Dada... Initiating Surprise in...</p><div id="countdown-number" class="text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-purple-300 to-indigo-500 animate-ping">3</div></div>
-        <div id="screen4" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-700 space-y-6"><div><span class="inline-block px-4 py-1.5 rounded-full bg-pink-500/20 text-pink-300 text-xs font-bold border border-pink-500/40 tracking-wider uppercase animate-pulse">Level Up Unlocked 🏆</span><h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 leading-tight">HAPPY BIRTHDAY, DADA! 🎂🎉</h1><p class="text-lg sm:text-xl text-slate-200 font-medium">You've successfully reached <span class="text-yellow-400 font-bold underline decoration-pink-500 decoration-4">Level 34</span>! 🚀</p></div><div class="bg-slate-900/80 rounded-2xl p-5 border border-purple-500/30 text-left space-y-3.5"><h3 class="text-base sm:text-lg font-bold text-pink-400 border-b border-slate-800 pb-2">📊 Official Birthday Statistics for Dada:</h3><div>💤 Sleeping <b class="float-right text-indigo-400">87%</b><div class="bg-slate-800 rounded-full h-2.5"><div class="bg-indigo-500 h-full rounded-full" style="width:87%"></div></div></div><div>🍔 Eating Delicious Food <b class="float-right text-amber-400">92%</b><div class="bg-slate-800 rounded-full h-2.5"><div class="bg-amber-500 h-full rounded-full" style="width:92%"></div></div></div><div>📱 Phone Usage & Reels <b class="float-right text-pink-400">99%</b><div class="bg-slate-800 rounded-full h-2.5"><div class="bg-pink-500 h-full rounded-full" style="width:99%"></div></div></div><div>😎 Thinking He's Always Right <b class="float-right text-green-400">100%</b><div class="bg-slate-800 rounded-full h-2.5"><div class="bg-green-500 h-full rounded-full" style="width:100%"></div></div></div><div>🧠 Common Sense <b class="float-right text-red-400">Loading... 404 Not Found 😂</b><div class="bg-slate-800 rounded-full h-2.5"><div class="bg-red-500 h-full rounded-full animate-pulse" style="width:15%"></div></div></div></div><div class="bg-gradient-to-br from-pink-950/40 via-purple-950/40 to-slate-900/90 rounded-2xl p-6 border border-pink-500/40 text-left space-y-4"><p class="text-slate-200 text-sm sm:text-base leading-relaxed">But seriously... jokes aside! I am really lucky to have you as my Dada. May this year bring you endless happiness, good health, continuous success, and pure joy in everything you do! ✨</p><div class="pt-2 border-t border-pink-500/20 text-right"><p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">With lots of love & wishes,</p><p class="text-xl sm:text-2xl font-extrabold text-pink-400 mt-0.5">❤️ Aathee</p></div></div><div class="flex flex-col sm:flex-row gap-3 pt-2"><button onclick="triggerConfettiBurst()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm">🎉 Blast Confetti Again!</button><button onclick="playChiptuneSong()" class="py-3 px-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-sm">🎵 Replay Birthday Tune</button></div></div>
+
+        <div id="screen2" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-500 border-2 border-amber-500/50">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-500 mb-3">Birthday Alert!</h2>
+            <p class="text-slate-200 text-base sm:text-lg mb-6">Special mission: celebrate the coolest person ever!</p>
+            <button onclick="startCountdown()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 text-white font-bold text-lg shadow-lg shadow-orange-500/30">
+                Start the Celebration ✨
+            </button>
+        </div>
+
+        <div id="screen3" class="glass-card rounded-3xl p-8 sm:p-12 text-center hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center min-h-[350px]">
+            <p class="text-sm uppercase tracking-[0.4em] text-pink-300 mb-8">Preparing surprise</p>
+            <div id="countdown-number" class="text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 animate-pulse">3</div>
+            <p class="mt-8 text-slate-300 text-base">Get ready for a wave of love, laughter, and cake! 🍰</p>
+        </div>
+
+        <div id="screen4" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-700 space-y-6">
+            <div>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-pink-500/15 text-pink-200 border border-pink-500/30 text-sm font-semibold mb-3">Special Delivery</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-yellow-200 to-orange-300">Happy Birthday, Dada! 🎂</h2>
+            </div>
+
+            <p class="text-slate-200 text-base sm:text-lg leading-relaxed">
+                Your smile is the greatest gift, and your presence is the sweetest blessing. May your year be filled with happiness, health, beauty, and unforgettable memories.
+            </p>
+
+            <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                <div class="photo-card overflow-hidden rounded-2xl bg-slate-900/40">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80" alt="Birthday memories" class="h-32 w-full object-cover" loading="lazy">
+                </div>
+                <div class="photo-card overflow-hidden rounded-2xl bg-slate-900/40">
+                    <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80" alt="Happy celebration" class="h-32 w-full object-cover" loading="lazy">
+                </div>
+                <div class="photo-card overflow-hidden rounded-2xl bg-slate-900/40">
+                    <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80" alt="Birthday lights" class="h-32 w-full object-cover" loading="lazy">
+                </div>
+                <div class="photo-card overflow-hidden rounded-2xl bg-slate-900/40">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Joyful moments" class="h-32 w-full object-cover" loading="lazy">
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-pink-300/30 bg-white/5 p-4 text-left">
+                <p class="text-pink-200 font-semibold text-sm uppercase tracking-[0.2em] mb-2">Birthday wish</p>
+                <p class="text-slate-100 text-sm sm:text-base leading-relaxed">
+                    May every dream you wish for come true, every smile stay on your face, and every day bring you more love than the one before. We love you so much! 💖
+                </p>
+            </div>
+
+            <button onclick="triggerConfettiBurst(); spawnBalloons();" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg shadow-lg shadow-purple-500/20">
+                Celebrate Again 🎊
+            </button>
+        </div>
     </main>
+
     <script>
-        let audioCtx=null; function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
-        function playSound(type){try{initAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);const n=audioCtx.currentTime;o.type=type==='warning'?'sawtooth':type==='count'?'square':'sine';o.frequency.setValueAtTime(type==='warning'?180:type==='count'?523.25:440,n);g.gain.setValueAtTime(.15,n);g.gain.exponentialRampToValueAtTime(.01,n+.2);o.start(n);o.stop(n+.2)}catch(e){}}
-        function playChiptuneSong(){try{initAudio();[261.63,261.63,293.66,261.63,349.23,329.63,261.63,261.63,293.66,261.63,392,349.23].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+i*.3;o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+.3)})}catch(e){}}
-        function show(id){['screen1','screen2','screen3','screen4'].forEach(x=>document.getElementById(x).classList.add('hidden','opacity-0'));const e=document.getElementById(id);e.classList.remove('hidden');setTimeout(()=>e.classList.remove('opacity-0'),50)}
-        function goToScreen2(){playSound('warning');show('screen2')}
-        function startCountdown(){playSound('beep');show('screen3');let n=3,e=document.getElementById('countdown-number');e.textContent=n;const t=setInterval(()=>{n--;if(n){e.textContent=n;playSound('count')}else{clearInterval(t);showFinalSurprise()}},1000)}
-        function showFinalSurprise(){show('screen4');triggerConfettiBurst();spawnBalloons();playChiptuneSong()}
-        function triggerConfettiBurst(){if(typeof confetti==='function')confetti({particleCount:150,spread:80,origin:{y:.6}})}
-        function spawnBalloons(){const c=document.getElementById('balloon-container'),a=['🎈','🎂','🎉','🎁','✨','🥳'];for(let i=0;i<18;i++)setTimeout(()=>{const b=document.createElement('div');b.className='balloon text-3xl';b.textContent=a[Math.floor(Math.random()*a.length)];b.style.left=Math.random()*90+5+'vw';c.appendChild(b);setTimeout(()=>b.remove(),10000)},i*350)}
-        document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{document.getElementById('scan-progress').style.width='100%';playSound('beep')},300);setTimeout(()=>{document.getElementById('detection-box').classList.remove('hidden');setTimeout(()=>document.getElementById('detection-box').classList.remove('opacity-0'),50)},1400);const b=document.getElementById('btn-no');b.addEventListener('mouseenter',()=>{b.style.transform=`translate(${Math.random()*240-120}px,${Math.random()*100-50}px)`;document.getElementById('no-taunt').classList.remove('opacity-0')})})
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                const oscillator = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                oscillator.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                oscillator.type = type === 'warning' ? 'square' : 'sine';
+                oscillator.frequency.setValueAtTime(type === 'warning' ? 220 : 440, now);
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                oscillator.start(now);
+                oscillator.stop(now + 0.28);
+            } catch (e) {
+                console.log('Audio not available:', e);
+            }
+        }
+
+        function playChiptuneSong() {
+            try {
+                initAudio();
+                const notes = [261.63, 261.63, 293.66, 261.63, 349.23, 329.63, 261.63, 261.63, 293.66, 261.63, 392, 349.23];
+                notes.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        oscillator.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        oscillator.type = 'triangle';
+                        oscillator.frequency.value = freq;
+                        gain.gain.value = 0.0001;
+                        gain.gain.exponentialRampToValueAtTime(0.07, audioCtx.currentTime + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.19);
+                        oscillator.start();
+                        oscillator.stop(audioCtx.currentTime + 0.2);
+                    }, index * 180);
+                });
+            } catch (e) {
+                console.log('Chiptune unavailable:', e);
+            }
+        }
+
+        function show(id) {
+            ['screen1', 'screen2', 'screen3', 'screen4'].forEach(x => {
+                const el = document.getElementById(x);
+                el.classList.add('hidden', 'opacity-0');
+            });
+            const target = document.getElementById(id);
+            target.classList.remove('hidden');
+            setTimeout(() => target.classList.remove('opacity-0'), 50);
+        }
+
+        function goToScreen2() {
+            playSound('warning');
+            show('screen2');
+        }
+
+        function startCountdown() {
+            playSound('beep');
+            show('screen3');
+            let n = 3;
+            const countdown = document.getElementById('countdown-number');
+            countdown.textContent = n;
+
+            const timer = setInterval(() => {
+                n--;
+                if (n > 0) {
+                    countdown.textContent = n;
+                    playSound('beep');
+                } else {
+                    clearInterval(timer);
+                    showFinalSurprise();
+                }
+            }, 850);
+        }
+
+        function showFinalSurprise() {
+            show('screen4');
+            triggerConfettiBurst();
+            spawnBalloons();
+            playChiptuneSong();
+        }
+
+        function triggerConfettiBurst() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 180, spread: 95, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 180, spread: 120, origin: { y: 0.3 } }), 300);
+            }
+        }
+
+        function spawnBalloons() {
+            const container = document.getElementById('balloon-container');
+            const emojis = ['🎈', '🎂', '🎉', '🎁', '✨', '🥳'];
+
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.className = 'balloon';
+                    balloon.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    balloon.style.left = Math.random() * 96 + '%';
+                    balloon.style.fontSize = (Math.random() * 18 + 18) + 'px';
+                    balloon.style.animationDuration = (Math.random() * 5 + 6) + 's';
+                    balloon.style.opacity = '0.9';
+                    balloon.style.filter = 'drop-shadow(0 0 8px rgba(255,255,255,0.4))';
+                    container.appendChild(balloon);
+                    setTimeout(() => balloon.remove(), 9000);
+                }, i * 120);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const progress = document.getElementById('scan-progress');
+                if (progress) progress.style.width = '100%';
+                playSound('beep');
+            }, 300);
+
+            setTimeout(() => {
+                const detectionBox = document.getElementById('detection-box');
+                if (detectionBox) {
+                    detectionBox.classList.remove('hidden');
+                    setTimeout(() => detectionBox.classList.remove('opacity-0'), 100);
+                }
+            }, 1200);
+        });
     </script>
 </body>
 </html>
