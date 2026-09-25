@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Surprise for Dada! 🎂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Laser Scanner Beam */
+        @keyframes scan {
+            0% { top: 0%; opacity: 0.8; }
+            50% { top: 90%; opacity: 1; }
+            100% { top: 0%; opacity: 0.8; }
+        }
+        .scanner-beam {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(236,72,153,0) 0%, rgba(236,72,153,1) 50%, rgba(236,72,153,0) 100%);
+            box-shadow: 0 0 15px #ec4899, 0 0 30px #ec4899;
+            animation: scan 2s infinite ease-in-out;
+        }
+
+        /* Floating Balloon Animation */
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0.8; }
+        }
+        .balloon {
+            position: fixed;
+            bottom: -100px;
+            z-index: 10;
+            pointer-events: none;
+            animation: floatUp 8s linear infinite;
+        }
+
+        /* Glassmorphism Card Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Pulsing Glow */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.9); transform: scale(1.03); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        /* Shake Effect for Warning */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake-element {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ec4899;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4 min-h-screen relative overflow-y-auto">
+
+    <!-- Ambient Background Bubbles/Glows -->
+    <div class="fixed top-10 left-10 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-10 right-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div id="balloon-container"></div>
+
+    <main class="w-full max-w-xl my-auto z-20">
+
+        <!-- SCREEN 1: SCANNING / LOADING -->
+        <div id="screen1" class="glass-card rounded-3xl p-6 sm:p-8 text-center relative overflow-hidden transition-all duration-500 transform scale-100">
+            <div class="scanner-beam"></div>
+            
+            <div class="relative z-10">
+                <div class="inline-block p-4 rounded-full bg-pink-500/10 mb-4 border border-pink-500/30 animate-pulse">
+                    <span class="text-5xl">🔍</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-wide text-pink-400 mb-2">SCANNING USER...</h1>
+                <p class="text-slate-300 text-sm mb-6">Analyzing biometrics & birthday credentials</p>
+
+                <!-- Status Progress -->
+                <div class="w-full bg-slate-800/80 rounded-full h-3 mb-6 overflow-hidden border border-slate-700">
+                    <div id="scan-progress" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full w-0 transition-all duration-1000 ease-out"></div>
+                </div>
+
+                <!-- Detection Result Card -->
+                <div id="detection-box" class="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-4 mb-6 text-left space-y-2 text-sm sm:text-base hidden opacity-0 transition-all duration-500">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Target Detected:</span>
+                        <span class="font-bold text-pink-400 text-lg">N. Partheeban (Dada)</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Age:</span>
+                        <span class="font-semibold text-yellow-400">Classified 🤫 (Level 34)</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-400">Status:</span>
+                        <span class="font-semibold text-red-400 flex items-center gap-1">Getting Older... ⚠️</span>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button id="btn-screen1" onclick="goToScreen2()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold text-lg sm:text-xl shadow-lg pulse-glow opacity-50 cursor-not-allowed transition-all duration-300 active:scale-95 disabled" disabled>
+                    🎁 CLICK TO SEE YOUR BIRTHDAY SURPRISE
+                </button>
+            </div>
+        </div>
+
+
+        <!-- SCREEN 2: FAKE SYSTEM WARNING -->
+        <div id="screen2" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-500 border-2 border-amber-500/50">
+            <div class="text-6xl mb-4 animate-bounce">⚠️</div>
+            <div class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs font-bold tracking-wider mb-3 uppercase border border-amber-500/30">
+                Critical Alert Detected
+            </div>
+            
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-400 mb-4">SYSTEM WARNING!</h2>
+            
+            <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-amber-500/30 text-left text-slate-200 text-sm sm:text-base leading-relaxed mb-6">
+                Our ultra-advanced AI system has discovered that you are officially <span class="text-pink-400 font-bold">1 year older today</span>! 
+                <br><br>
+                <span class="text-red-400 font-semibold">⚠️ WARNING:</span> There is currently no known cure for getting older. Do you wish to accept this reality and proceed?
+            </div>
+
+            <div class="relative h-28 flex items-center justify-center gap-4">
+                <button id="btn-yes" onclick="startCountdown()" class="px-8 py-3.5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-lg shadow-lg hover:shadow-green-500/30 transition-all transform hover:scale-105 active:scale-95">
+                    YES 👍
+                </button>
+                
+                <button id="btn-no" class="px-8 py-3.5 rounded-xl bg-red-500 text-white font-bold text-lg shadow-lg absolute transition-all duration-200 z-50">
+                    NO 🏃‍♂️
+                </button>
+            </div>
+            <p id="no-taunt" class="text-xs text-pink-400 font-semibold h-4 mt-2 opacity-0 transition-opacity">Nice try Dada! You can't escape age! 😏</p>
+        </div>
+
+
+        <!-- SCREEN 3: COUNTDOWN -->
+        <div id="screen3" class="glass-card rounded-3xl p-8 sm:p-12 text-center hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center min-h-[350px]">
+            <p class="text-slate-400 text-lg mb-4 font-semibold uppercase tracking-widest">Hold on Dada... Initiating Surprise in...</p>
+            <div id="countdown-number" class="text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-purple-300 to-indigo-500 animate-ping">
+                3
+            </div>
+        </div>
+
+
+        <!-- SCREEN 4: GRAND REVEAL & STATS -->
+        <div id="screen4" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden opacity-0 transition-all duration-700 space-y-6">
+            
+            <!-- Main Wish Header -->
+            <div class="space-y-2">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-pink-500/20 text-pink-300 text-xs sm:text-sm font-bold border border-pink-500/40 tracking-wider uppercase animate-pulse">
+                    Level Up Unlocked 🏆
+                </span>
+                <h1 class="text-3xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-purple-400 leading-tight">
+                    HAPPY BIRTHDAY, DADA! 🎂🎉
+                </h1>
+                <p class="text-lg sm:text-xl text-slate-200 font-medium">
+                    You've successfully reached <span class="text-yellow-400 font-bold underline decoration-pink-500 decoration-4">Level 34</span>! 🚀
+                </p>
+            </div>
+
+            <!-- Funny Statistics Card -->
+            <div class="bg-slate-900/80 rounded-2xl p-5 border border-purple-500/30 text-left space-y-3.5">
+                <h3 class="text-base sm:text-lg font-bold text-pink-400 border-b border-slate-800 pb-2 flex items-center gap-2">
+                    <span>📊</span> Official Birthday Statistics for Dada:
+                </h3>
+
+                <!-- Stat items -->
+                <div>
+                    <div class="flex justify-between text-xs sm:text-sm mb-1">
+                        <span>💤 Sleeping</span>
+                        <span class="font-bold text-indigo-400">87%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-indigo-500 h-full rounded-full" style="width: 87%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs sm:text-sm mb-1">
+                        <span>🍔 Eating Delicious Food</span>
+                        <span class="font-bold text-amber-400">92%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-amber-500 h-full rounded-full" style="width: 92%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs sm:text-sm mb-1">
+                        <span>📱 Phone Usage & Reels</span>
+                        <span class="font-bold text-pink-400">99%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-pink-500 h-full rounded-full" style="width: 99%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs sm:text-sm mb-1">
+                        <span>😎 Thinking He's Always Right</span>
+                        <span class="font-bold text-green-400">100%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-green-500 h-full rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-xs sm:text-sm mb-1">
+                        <span>🧠 Common Sense</span>
+                        <span class="font-bold text-red-400">Loading... 404 Not Found 😂</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-red-500 h-full rounded-full animate-pulse" style="width: 15%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heartfelt Message Box -->
+            <div class="bg-gradient-to-br from-pink-950/40 via-purple-950/40 to-slate-900/90 rounded-2xl p-6 border border-pink-500/40 text-left space-y-4 shadow-xl relative overflow-hidden">
+                <div class="text-4xl absolute -right-2 -bottom-2 opacity-10">❤️</div>
+                <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
+                    But seriously... jokes aside! I am really lucky to have you as my Dada. 
+                    May this year bring you endless happiness, good health, continuous success, and pure joy in everything you do! ✨
+                </p>
+                <div class="pt-2 border-t border-pink-500/20 text-right">
+                    <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">With lots of love & wishes,</p>
+                    <p class="text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300 mt-0.5">
+                        ❤️ Aathee
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button onclick="triggerConfettiBurst()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all">
+                    🎉 Blast Confetti Again!
+                </button>
+                <button onclick="playChiptuneSong()" class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                    <span>🎵</span> Replay Birthday Tune
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // Web Audio API Synthesizer Context
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Sound Effects generator
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'beep') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'warning') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(140, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'pop') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'count') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        // Plays a festive synthesizer Happy Birthday fanfare
+        function playChiptuneSong() {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                // Happy Birthday notes (Note frequencies)
+                const notes = [
+                    {f: 261.63, d: 0.3}, {f: 261.63, d: 0.3}, {f: 293.66, d: 0.6}, {f: 261.63, d: 0.6}, {f: 349.23, d: 0.6}, {f: 329.63, d: 1.0},
+                    {f: 261.63, d: 0.3}, {f: 261.63, d: 0.3}, {f: 293.66, d: 0.6}, {f: 261.63, d: 0.6}, {f: 392.00, d: 0.6}, {f: 349.23, d: 1.0},
+                    {f: 261.63, d: 0.3}, {f: 261.63, d: 0.3}, {f: 523.25, d: 0.6}, {f: 440.00, d: 0.6}, {f: 349.23, d: 0.6}, {f: 329.63, d: 0.6}, {f: 293.66, d: 0.8}
+                ];
+
+                let time = audioCtx.currentTime + 0.1;
+
+                notes.forEach(note => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(note.f, time);
+                    gain.gain.setValueAtTime(0.15, time);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + note.d - 0.05);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(time);
+                    osc.stop(time + note.d);
+                    time += note.d;
+                });
+            } catch(e) {
+                console.log("Song error:", e);
+            }
+        }
+
+        // Initialize Scanning on Page Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.getElementById('scan-progress');
+            const detectionBox = document.getElementById('detection-box');
+            const btnScreen1 = document.getElementById('btn-screen1');
+
+            setTimeout(() => {
+                progressBar.style.width = '100%';
+                playSound('beep');
+            }, 300);
+
+            setTimeout(() => {
+                detectionBox.classList.remove('hidden');
+                setTimeout(() => detectionBox.classList.add('opacity-100'), 50);
+                playSound('pop');
+
+                btnScreen1.disabled = false;
+                btnScreen1.classList.remove('opacity-50', 'cursor-not-allowed');
+            }, 1400);
+
+            setupRunawayButton();
+        });
+
+        // SCREEN TRANSITION HANDLERS
+        function goToScreen2() {
+            playSound('warning');
+            const s1 = document.getElementById('screen1');
+            const s2 = document.getElementById('screen2');
+
+            s1.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                s1.classList.add('hidden');
+                s2.classList.remove('hidden');
+                setTimeout(() => {
+                    s2.classList.remove('opacity-0');
+                    s2.classList.add('shake-element');
+                }, 50);
+            }, 400);
+        }
+
+        // Runaway "NO" Button Logic
+        function setupRunawayButton() {
+            const noBtn = document.getElementById('btn-no');
+            const tauntText = document.getElementById('no-taunt');
+
+            const moveBtn = (e) => {
+                if (e) e.preventDefault();
+                playSound('pop');
+
+                const card = document.getElementById('screen2');
+                const cardRect = card.getBoundingClientRect();
+                const btnRect = noBtn.getBoundingClientRect();
+
+                // Random coordinates relative to container
+                const maxX = cardRect.width - btnRect.width - 40;
+                const maxY = cardRect.height - btnRect.height - 40;
+
+                const randomX = Math.max(20, Math.floor(Math.random() * maxX) - (cardRect.width / 2) + 60);
+                const randomY = Math.max(-60, Math.floor(Math.random() * maxY) - (cardRect.height / 2) + 40);
+
+                noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+                tauntText.classList.remove('opacity-0');
+            };
+
+            noBtn.addEventListener('mouseenter', moveBtn);
+            noBtn.addEventListener('touchstart', moveBtn);
+            noBtn.addEventListener('click', moveBtn);
+        }
+
+        // Start Countdown Process
+        function startCountdown() {
+            playSound('beep');
+            const s2 = document.getElementById('screen2');
+            const s3 = document.getElementById('screen3');
+
+            s2.classList.add('opacity-0');
+            setTimeout(() => {
+                s2.classList.add('hidden');
+                s3.classList.remove('hidden');
+                setTimeout(() => s3.classList.remove('opacity-0'), 50);
+
+                let count = 3;
+                const countElem = document.getElementById('countdown-number');
+                playSound('count');
+
+                const timer = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countElem.innerText = count;
+                        playSound('count');
+                        // re-trigger animation
+                        countElem.classList.remove('animate-ping');
+                        void countElem.offsetWidth;
+                        countElem.classList.add('animate-ping');
+                    } else {
+                        clearInterval(timer);
+                        showFinalSurprise();
+                    }
+                }, 1000);
+
+            }, 400);
+        }
+
+        // Final Birthday Reveal
+        function showFinalSurprise() {
+            const s3 = document.getElementById('screen3');
+            const s4 = document.getElementById('screen4');
+
+            s3.classList.add('opacity-0');
+            setTimeout(() => {
+                s3.classList.add('hidden');
+                s4.classList.remove('hidden');
+                setTimeout(() => s4.classList.remove('opacity-0'), 50);
+
+                triggerConfettiBurst();
+                spawnBalloons();
+                playChiptuneSong();
+            }, 400);
+        }
+
+        // Confetti Fireworks Burst
+        function triggerConfettiBurst() {
+            playSound('pop');
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                }, 250);
+
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+                }, 400);
+            }
+        }
+
+        // Spawn Floating Emoji Balloons
+        function spawnBalloons() {
+            const container = document.getElementById('balloon-container');
+            const balloons = ['🎈', '🎂', '🎉', '🎁', '✨', '🥳'];
+            
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => {
+                    const balloon = document.createElement('div');
+                    balloon.className = 'balloon text-3xl sm:text-4xl';
+                    balloon.innerText = balloons[Math.floor(Math.random() * balloons.length)];
+                    balloon.style.left = Math.random() * 90 + 5 + 'vw';
+                    balloon.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                    container.appendChild(balloon);
+
+                    setTimeout(() => balloon.remove(), 10000);
+                }, i * 350);
+            }
+        }
+    </script>
+</body>
+</html>
